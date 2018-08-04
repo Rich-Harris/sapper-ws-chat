@@ -83,7 +83,8 @@
 
 	export default {
 		oncreate() {
-			this.ws = new WebSocket(`ws://${window.location.host}`);
+			const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+			this.ws = new WebSocket(`${protocol}//${window.location.host}`);
 
 			this.ws.addEventListener('message', event => {
 				const data = JSON.parse(event.data);
