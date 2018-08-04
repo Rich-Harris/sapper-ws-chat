@@ -1,0 +1,155 @@
+<svelte:head>
+	<title>Sapperchat</title>
+</svelte:head>
+
+<h1>Sapperchat</h1>
+
+{#if name}
+	<textarea on:enter="send(this)"></textarea>
+
+	{#each messages.slice().reverse() as message (message.id)}
+		<div class="message">
+			<span class="timestamp">{format(message.timestamp)}</span>
+
+			{#if message.action === 'join'}
+				<p><em>@{message.name} joined the server</em></p>
+			{:else}
+				<p><strong>@{message.name}</strong> {message.content}</p>
+			{/if}
+		</div>
+	{/each}
+{:else}
+	<h2>Enter a name to join</h2>
+	<input on:enter="join(this.value)">
+{/if}
+
+<style>
+	h1, p {
+		margin: 0 auto;
+	}
+
+	h1 {
+		font-size: 2.8em;
+		text-transform: uppercase;
+		font-weight: 700;
+		margin: 0 0 0.5em 0;
+	}
+
+	h2, h3 {
+		font-weight: bold;
+		margin: 0 0 0.5em 0;
+	}
+
+	p {
+		margin: 0 0 1em 0;
+	}
+
+	p:last-child {
+		margin: 0;
+	}
+
+	input, textarea {
+		font-family: inherit;
+		font-size: inherit;
+	}
+
+	textarea {
+		width: 100%;
+		height: 50px;
+		resize: none;
+	}
+
+	.message {
+		padding: 0.5em 0;
+		border-bottom: 1px solid #eee;
+	}
+
+	.timestamp {
+		font-size: 12px;
+		color: #999;
+	}
+
+	@media (min-width: 480px) {
+		h1 {
+			font-size: 4em;
+		}
+	}
+</style>
+
+<script>
+	function send(ws, data) {
+		ws.send(JSON.stringify(data));
+	}
+
+	export default {
+		oncreate() {
+			this.ws = new WebSocket(`ws://${window.location.host}`);
+
+			this.ws.addEventListener('message', event => {
+				const data = JSON.parse(event.data);
+
+				const { messages } = this.get();
+
+				this.set({
+					messages: messages.concat(data)
+				});
+			});
+		},
+
+		data() {
+			return {
+				messages: [],
+				name: ''
+			};
+		},
+
+		helpers: {
+			format(timestamp) {
+				const d = new Date(timestamp);
+				return d.toString();
+			}
+		},
+
+		methods: {
+			join(name) {
+				this.set({
+					name
+				});
+
+				send(this.ws, {
+					action: 'join',
+					name
+				});
+			},
+
+			send(textarea) {
+				const { name, messages } = this.get();
+
+				send(this.ws, {
+					action: 'message',
+					name,
+					content: textarea.value
+				});
+
+				textarea.value = '';
+				textarea.blur();
+			}
+		},
+
+		events: {
+			enter(node, callback) {
+				function handleKeydown(event) {
+					if (event.which === 13) callback(event);
+				}
+
+				node.addEventListener('keydown', handleKeydown);
+
+				return {
+					destroy() {
+						node.removeEventListener('keydown', handleKeydown);
+					}
+				};
+			}
+		}
+	};
+</script>
