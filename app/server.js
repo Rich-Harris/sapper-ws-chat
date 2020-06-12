@@ -6,20 +6,15 @@ import compression from 'compression';
 import WebSocket from 'ws';
 import { manifest } from './manifest/server.js';
 
-const app = express() // You can also use Express
-	.use(
-		compression({ threshold: 0 }),
-		sirv('assets'),
-		sapper({
-			manifest
-		})
-	);
+const app = express().use(
+	compression({ threshold: 0 }),
+	sirv('assets'),
+	sapper({ manifest })
+);
 
 const server = http.createServer(app);
 
-const wss = new WebSocket.Server({
-	server
-});
+const wss = new WebSocket.Server({ server });
 
 const message_history = [{
 	id: uuidv4(),
