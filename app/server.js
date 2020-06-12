@@ -98,5 +98,4 @@ wss.on('connection', ws => {
 		broadcast(data);
 	});
 });
-
 server.listen(process.env.PORT);
