@@ -16,6 +16,7 @@ const server = http.createServer(app);
 
 const wss = new WebSocket.Server({ server });
 
+/*
 const message_history = [{
 	id: uuidv4(),
 	timestamp: Date.now(),
@@ -28,6 +29,7 @@ const message_history = [{
 	name: 'sapperchatbot',
 	content: 'hello world!'
 }];
+*/
 
 // https://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
 function uuidv4() {
@@ -41,7 +43,7 @@ function broadcast(data) {
 	data.id = uuidv4();
 	data.timestamp = Date.now();
 
-	message_history.push(data);
+	// message_history.push(data);
 
 	const json = JSON.stringify(data);
 
@@ -58,7 +60,7 @@ function pickRandom(arr) {
 }
 
 wss.on('connection', ws => {
-	ws.send(JSON.stringify(message_history));
+	// ws.send(JSON.stringify(message_history));
 
 	let name;
 
