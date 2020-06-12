@@ -1,5 +1,6 @@
 # sapper-template
 
+
 The default [Sapper](https://github.com/sveltejs/sapper) template. To clone it and get started:
 
 ```bash
